@@ -1,0 +1,9 @@
+// src/notifme/notifme.module.ts
+import { Module } from '@nestjs/common';
+import { NotifmeService } from './notifme.service';
+
+@Module({
+  providers: [NotifmeService],
+  exports: [NotifmeService], // Export it so it can be used in other modules
+})
+export class NotifmeModule {}
