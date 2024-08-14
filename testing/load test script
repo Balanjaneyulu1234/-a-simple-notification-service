@@ -1,0 +1,16 @@
+config:
+  target: 'http://localhost:3000' # Change to your app's host
+  phases:
+    - duration: 60 # Test duration in seconds
+      arrivalRate: 10 # Number of new virtual users each second
+
+scenarios:
+  - flow:
+      - post:
+          url: "/compliance/ses"
+          json:
+            # Your SES mock notification body here
+      - post:
+          url: "/compliance/mailgun"
+          json:
+            # Your Mailgun mock event body here
