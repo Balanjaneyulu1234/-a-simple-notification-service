@@ -1,0 +1,20 @@
+/src/
+  /notification/
+    notification.module.ts
+    notification.service.ts
+    notification.controller.ts
+  /channels/
+    /email/
+      email.service.ts
+    /sms/
+      sms.service.ts
+    /push/
+      push.service.ts
+  /compliance/
+    compliance.service.ts
+/libs/
+  /utils/
+    utility.service.ts
+package.json
+tsconfig.json
+README.md
