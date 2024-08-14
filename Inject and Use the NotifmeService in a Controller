@@ -1,0 +1,21 @@
+// src/notification/notification.controller.ts
+import { Controller, Post, Body } from '@nestjs/common';
+import { NotifmeService } from '../notifme/notifme.service';
+
+@Controller('notifications')
+export class NotificationController {
+  constructor(private readonly notifmeService: NotifmeService) {}
+
+  @Post('email')
+  async triggerEmail(@Body() body: { recipient: string; subject: string; message: string }) {
+    const emailRequest = {
+      from: 'you@yourdomain.com',
+      to: body.recipient,
+      subject: body.subject,
+      html: `<h1>${body.subject}</h1><p>${body.message}</p>`,
+    };
+    await this.notifmeService.sendEmail(emailRequest);
+  }
+
+  // Other methods...
+}
