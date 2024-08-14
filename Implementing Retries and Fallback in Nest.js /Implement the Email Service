@@ -1,0 +1,84 @@
+import { Injectable, Logger } from '@nestjs/common';
+import * as AWS from 'aws-sdk';
+import * as Mailgun from 'mailgun-js';
+
+@Injectable()
+export class EmailService {
+  private readonly logger = new Logger(EmailService.name);
+  private readonly ses = new AWS.SES({ region: 'us-east-1' }); // Configure your AWS region
+  private readonly mailgun = Mailgun({ apiKey: 'your-mailgun-api-key', domain: 'your-mailgun-domain' });
+
+  async sendEmail(emailData: { to: string; subject: string; html: string }) {
+    try {
+      // Attempt to send via SES (includes retries)
+      const sentWithSES = await this.attemptSesSend(emailData);
+      if (sentWithSES) {
+        this.logger.log('Email sent successfully with SES.');
+        return;
+      }
+
+      // Fallback to Mailgun if SES fails
+      const sentWithMailgun = await this.sendEmailWithMailgun(emailData);
+      if (sentWithMailgun) {
+        this.logger.log('Email sent successfully with Mailgun.');
+        return;
+      }
+
+      // Log high-priority event if all attempts fail
+      this.logger.error('Failed to send email with both SES and Mailgun.');
+    } catch (error) {
+      this.logger.error(`Error in sending email: ${error.message}`, error.stack);
+    }
+  }
+
+  private async attemptSesSend(emailData: { to: string; subject: string; html: string }, attempts = 3): Promise<boolean> {
+    while (attempts > 0) {
+      try {
+        // Configure SES email parameters
+        const params = {
+          Destination: {
+            ToAddresses: [emailData.to],
+          },
+          Message: {
+            Body: {
+              Html: {
+                Charset: 'UTF-8',
+                Data: emailData.html,
+              },
+            },
+            Subject: {
+              Charset: 'UTF-8',
+              Data: emailData.subject,
+            },
+          },
+          Source: 'your-verified-email@yourdomain.com', // Replace with your verified SES email address
+        };
+
+        await this.ses.sendEmail(params).promise();
+        return true; // Email sent successfully
+      } catch (error) {
+        this.logger.error(`Attempt failed, attempts left: ${attempts - 1}. Error: ${error.message}`);
+        attempts -= 1;
+      }
+    }
+    return false; // Failed after retries
+  }
+
+  private async sendEmailWithMailgun(emailData: { to: string; subject: string; html: string }): Promise<boolean> {
+    try {
+      // Configure Mailgun email parameters
+      const data = {
+        from: 'your-email@yourdomain.com', // Replace with your Mailgun email address
+        to: emailData.to,
+        subject: emailData.subject,
+        html: emailData.html,
+      };
+
+      await this.mailgun.messages().send(data);
+      return true; // Email sent successfully
+    } catch (error) {
+      this.logger.error(`Failed to send email with Mailgun: ${error.message}`);
+      return false;
+    }
+  }
+}
