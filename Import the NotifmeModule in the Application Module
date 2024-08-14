@@ -1,0 +1,9 @@
+// src/app.module.ts
+import { Module } from '@nestjs/common';
+import { NotificationModule } from './notification/notification.module';
+import { NotifmeModule } from './notifme/notifme.module';
+
+@Module({
+  imports: [NotificationModule, NotifmeModule],
+})
+export class AppModule {}
