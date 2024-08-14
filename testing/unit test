@@ -1,0 +1,49 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { ComplianceService } from './compliance.service';
+
+describe('ComplianceService - Expanded Scenarios', () => {
+  let service: ComplianceService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [ComplianceService],
+    }).compile();
+
+    service = module.get<ComplianceService>(ComplianceService);
+  });
+
+  it('should handle SES bounce notifications successfully - Happy Path', async () => {
+    const sesBounceNotification = { 
+      // Populate with SES bounce notification mock data
+    };
+    const result = await service.processSESNotification(sesBounceNotification);
+    expect(result).toBe(/* Expected result, e.g., success message or processed object */);
+  });
+
+  it('should handle Mailgun delivered event successfully - Happy Path', async () => {
+    const mailgunDeliveredEvent = { 
+      // Populate with Mailgun delivered event mock data
+    };
+    const result = await service.processMailgunEvent(mailgunDeliveredEvent);
+    expect(result).toBe(/* Expected result, e.g., success message or processed object */);
+  });
+
+  it('fails gracefully on malformed SES notification - Negative Case', async () => {
+    const malformedSESNotification = { 
+      // Populate with malformed SES notification data
+    };
+    await expect(service.processSESNotification(malformedSESNotification))
+      .rejects
+      .toThrow(/Malformed input/); // Adjust based on your actual error handling
+  });
+
+  it('ignores unrelated SES event types - Rare Case', async () => {
+    const unrelatedSESEvent = { 
+      // Populate with an SES event that isn't a bounce or complaint
+    };
+    const result = await service.processSESNotification(unrelatedSESEvent);
+    expect(result).toBeNull(); // Or undefined, or another expected outcome
+  });
+
+  // Additional tests can include handling SES complaints, Mailgun bounces, etc.
+});
