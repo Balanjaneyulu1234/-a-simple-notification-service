@@ -1,0 +1,19 @@
+const AWS = require('aws-sdk');
+const sns = new AWS.SNS();
+
+exports.handler = async (event) => {
+    const message = JSON.parse(event.Records[0].Sns.Message);
+
+    if (message.notificationType === 'Bounce' || message.notificationType === 'Complaint') {
+        // Extract the email addresses from the bounce/complaint notification
+        const addresses = message.bounce 
+            ? message.bounce.bouncedRecipients.map(recipient => recipient.emailAddress)
+            : message.complaint.complainedRecipients.map(recipient => recipient.emailAddress);
+
+        // Handle the bounces or complaints (e.g., remove emails from your list)
+        console.log('Addresses to be removed or flagged:', addresses);
+
+        // Example: Call an internal method or API endpoint to update your email list
+        // updateEmailList(addresses);
+    }
+};
