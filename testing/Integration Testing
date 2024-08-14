@@ -1,0 +1,42 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { ComplianceController } from './compliance.controller';
+import { ComplianceService } from './compliance.service';
+
+describe('ComplianceController', () => {
+  let controller: ComplianceController;
+  let service: ComplianceService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [ComplianceController],
+      providers: [
+        { 
+          provide: ComplianceService, 
+          useValue: { 
+            processSESNotification: jest.fn(), 
+            processMailgunEvent: jest.fn() 
+          }
+        }
+      ],
+    }).compile();
+
+    controller = module.get<ComplianceController>(ComplianceController);
+    service = module.get<ComplianceService>(ComplianceService);
+  });
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
+
+  it('should process SES notification', async () => {
+    const sesNotification = { /* mock SES notification object */ };
+    await controller.receiveSESNotification(sesNotification);
+    expect(service.processSESNotification).toHaveBeenCalledWith(sesNotification);
+  });
+
+  it('should process Mailgun event', async () => {
+    const mailgunEvent = { /* mock Mailgun event object */ };
+    await controller.receiveMailgunEvent(mailgunEvent);
+    expect(service.processMailgunEvent).toHaveBeenCalledWith(mailgunEvent);
+  });
+});
