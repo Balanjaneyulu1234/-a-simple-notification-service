@@ -1,0 +1,3 @@
+aws cloudwatch put-metric-alarm --alarm-name "SES Bounce Rate Alarm" --metric-name "BounceRate" \
+--namespace "AWS/SES" --statistic "Average" --period 300 --threshold 5 \
+--comparison-operator "GreaterThanThreshold" --evaluation-periods 1 --alarm-actions "<sns-topic-arn>"
