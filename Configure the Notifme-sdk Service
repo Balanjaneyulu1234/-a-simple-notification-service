@@ -1,0 +1,43 @@
+// src/notifme/notifme.service.ts
+import { Injectable } from '@nestjs/common';
+import { NotifmeSdk } from 'notifme-sdk';
+import { EmailRequestType } from 'notifme-sdk'; // Import based on your needs
+
+@Injectable()
+export class NotifmeService {
+  private notifmeSdk: NotifmeSdk;
+
+  constructor() {
+    this.notifmeSdk = new NotifmeSdk({
+      channels: {
+        email: {
+          // Default provider setup
+          providers: [{
+            type: 'smtp',
+            host: process.env.SMTP_HOST,
+            port: parseInt(process.env.SMTP_PORT, 10),
+            secure: process.env.SMTP_SECURE === 'true',
+            auth: {
+              user: process.env.SMTP_USER,
+              pass: process.env.SMTP_PASSWORD,
+            },
+          }],
+        },
+        // Setup other channels as needed
+      },
+    });
+  }
+
+  async sendEmail(emailRequest: EmailRequestType) {
+    try {
+      const result = await this.notifmeSdk.send({ email: emailRequest });
+      console.log(result);
+      return result;
+    } catch (error) {
+      console.error('Error sending email through NotifmeSdk:', error);
+      throw error; // Or handle it as per your needs
+    }
+  }
+
+  // Implement other notification methods as needed (SMS, push, etc.)
+}
