@@ -1,0 +1,76 @@
+Step 1: Create a Notifme Module 
+
+First, create a Notifme module that will encapsulate the Notifme-sdk setup and usage. 
+
+ 
+
+nest generate module notifme 
+nest generate service notifme 
+
+These commands create the necessary files in your Nest.js project. 
+
+Step 2: Configure the Notifme-sdk Service 
+
+In your newly created notifme.service.ts, you can initialize and configure Notifme-sdk. 
+
+ 
+
+// src/notifme/notifme.service.ts 
+import { Injectable } from '@nestjs/common'; 
+import { NotifmeSdk } from 'notifme-sdk'; 
+import { EmailRequestType } from 'notifme-sdk'; // Import based on what you need 
+@Injectable() 
+export class NotifmeService { 
+  private notifmeSdk: NotifmeSdk; 
+  constructor() { 
+    this.notifmeSdk = new NotifmeSdk({ 
+      channels: { 
+        email: { 
+          // Default provider setup 
+          providers: [{ 
+            type: 'smtp', 
+            host: process.env.SMTP_HOST, 
+            port: process.env.SMTP_PORT, 
+            secure: process.env.SMTP_SECURE === 'true', 
+            auth: { 
+              user: process.env.SMTP_USER, 
+              pass: process.env.SMTP_PASSWORD, 
+            }, 
+          }], 
+        }, 
+        // Setup other channels as needed 
+      }, 
+    }); 
+  } 
+  async sendEmail(emailRequest: EmailRequestType) { 
+    try { 
+      const result = await this.notifmeSdk.send({ email: emailRequest }); 
+      console.log(result); 
+      return result; 
+    } catch (error) { 
+      console.error('Error sending email through NotifmeSdk:', error); 
+      throw error; // Or handle it as per your needs 
+    } 
+  } 
+  // Implement other notification methods as needed (SMS, push, etc.) 
+} 
+
+ 
+
+Step 3: Use the Notifme Service 
+
+Wherever you need to send an email in your application, inject the NotifmeService and call the sendEmail method. 
+
+ 
+
+// In any service or controller 
+constructor(private readonly notifmeService: NotifmeService) {} 
+async triggerEmail() { 
+  const emailRequest = { 
+    from: 'you@yourdomain.com', 
+    to: 'user@example.com', 
+    subject: 'Test Nest.js Notifme Integration', 
+    html: '<h1>Testing</h1><p>This is a test email.</p>', 
+  }; 
+  await this.notifmeService.sendEmail(emailRequest); 
+} 
