@@ -1,0 +1,45 @@
+ Create a New NestJS Project
+
+If you haven’t already created a NestJS project, run:
+
+bash
+Copy code
+nest new email-service
+1.2 Navigate to Your Project Directory
+
+bash
+Copy code
+cd email-service
+1.3 Install Dependencies
+
+Install the necessary dependencies for AWS SDK and SQS integration:
+
+bash
+Copy code
+npm install --save @nestjs/core @nestjs/common aws-sdk @nestjs-modules/sqs reflect-metadata rxjs
+Step 2: Producer Setup in Laravel
+In your Laravel application, configure it to use SQS for queuing email jobs.
+
+2.1 Configure Environment Variables
+
+Update your .env file with the necessary SQS configuration:
+
+env
+Copy code
+QUEUE_CONNECTION=sqs
+SQS_KEY=your_aws_access_key
+SQS_SECRET=your_aws_secret_access_key
+SQS_PREFIX=https://sqs.your-region.amazonaws.com/your_account_id
+SQS_QUEUE=your_queue_name
+SQS_REGION=your-region
+2.2 Dispatch Email Jobs
+
+When you want to dispatch an email job, use:
+
+php
+Copy code
+dispatch(new SendEmailJob([
+  'to' => 'user@example.com',
+  'subject' => 'Subject Line',
+  'content' => 'Email Body here...'
+]));
