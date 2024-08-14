@@ -1,0 +1,5 @@
+// communication-strategies/email-strategy.interface.ts
+
+export interface EmailStrategy {
+    sendEmail(emailData: any): Promise<void>;
+}
