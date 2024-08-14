@@ -1,0 +1,27 @@
+// src/email/email.service.ts
+import { Process, Processor } from '@nestjs-modules/sqs';
+import { Injectable } from '@nestjs/common';
+import { EmailService as NotifmeEmailService } from '../notifme/notifme.service'; // Adjust path as needed
+import { Message } from 'aws-sdk/clients/sqs';
+
+@Injectable()
+@Processor('your-queue-name') // Ensure this matches your SQS queue name
+export class EmailService {
+  constructor(private readonly notifmeEmailService: NotifmeEmailService) {}
+
+  @Process()
+  async handleEmailJob(job: Message) {
+    try {
+      const { to, subject, content } = JSON.parse(job.Body);
+      await this.notifmeEmailService.sendEmail({
+        to,
+        subject,
+        html: content,
+      });
+    } catch (error) {
+      console.error('Error processing SQS message:', error);
+      // Optionally handle errors and retries here
+      throw error;
+    }
+  }
+}
